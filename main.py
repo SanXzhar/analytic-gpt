@@ -20,9 +20,6 @@ def main():
 
     raw_table = st.file_uploader(label="upload")
 
-
-
-
     model = OpenAI(
         model_name="gpt-3.5-turbo-16k",
         openai_api_key=openai_key,
