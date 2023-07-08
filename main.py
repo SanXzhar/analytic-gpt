@@ -39,34 +39,5 @@ def main():
         prompt = PromptTemplate.from_template(template)
         st.write(model(prompt.format(table = table)))
 
-
-# template = """/
-# You are a naming consultant for new companies.
-# What is a good name for a company that makes {product}?
-# """
-
-# prompt = PromptTemplate.from_template(template)
-# prompt.format(product="colorful socks")
-    
-
-    
-
-
-
-# def main():
-#     load_dotenv()
-#     st.set_page_config(page_title="@armansu")
-#     st.header("Ask your question from @Armansu")
-#     os.getenv("OPENAI_API_KEY")
-    
-#     embeddings = OpenAIEmbeddings()
-
-#     knowledge_base = FAISS.load_local("./storage/index3", embeddings)
-#     user_question = st.text_input("Type your question")
-#     if user_question:
-#         chain = RetrievalQA.from_chain_type(llm = ChatOpenAI(model_name="gpt-3.5-turbo"), chain_type="stuff", retriever = knowledge_base.as_retriever())
-#         response = chain.run(user_question)
-#         st.write(response)
-
 if __name__ == "__main__":
     main()
