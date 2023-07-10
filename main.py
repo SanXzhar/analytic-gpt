@@ -45,7 +45,7 @@ def main():
         st.dataframe(df)
 
 
-        chart_types = ['Info', 'Null Info']
+        chart_types = ['Info', 'Null Info', 'Descriptive Analysis', 'Target Analysis']
         
         functions.sidebar_space(3)         
         charts = st.sidebar.multiselect("Choose which visualizations you want to see 👇", chart_types)
@@ -63,7 +63,18 @@ def main():
                 c1, c2, c3 = st.columns([1, 6, 1])
                 c2.dataframe(functions.df_isnull(df), width = 1500)
 
+        if 'Descriptive Analysis' in charts:
+            st.subheader("Descriptive Analysis:")
+            st.dataframe(df.describe())
 
+        if 'Target Analysis' in charts:
+            st.subheader("Targer Analysis:")
+            target_column = st.selectbox("", df.columns, index = len(df.columns) - 1)
+    
+            st.subheader("Histogram of target column")
+            fig = px.histogram(df, x = target_column)
+            c1, c2, c3 = st.columns([0.5, 2, 0.5])
+            c2.plotly_chart(fig)
         
 
 if __name__ == "__main__":
