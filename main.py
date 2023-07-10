@@ -45,7 +45,7 @@ def main():
         st.dataframe(df)
 
 
-        chart_types = ['Info', 'Null Info', 'Descriptive Analysis', 'Target Analysis']
+        chart_types = ['Info', 'Null Info', 'Descriptive Analysis', 'Target Analysis', 'Distribution of Numerical Columns']
         
         functions.sidebar_space(3)         
         charts = st.sidebar.multiselect("Choose which visualizations you want to see 👇", chart_types)
@@ -76,6 +76,27 @@ def main():
             c1, c2, c3 = st.columns([0.5, 2, 0.5])
             c2.plotly_chart(fig)
         
+        num_columns = df.select_dtypes(exclude = 'object').columns
+        cat_columns = df.select_dtypes(include = 'object').columns
+
+        if 'Distribution of Numerical Columns' in charts:
+            if len(num_columns) == 0:
+                st.write('There is no numerical colums in the data.')
+            else: 
+                selected_num_cols = functions.sidebar_multiselect_container('Choose columns for Distribution plots:', num_columns, "Distribution")
+                st.subheader("Distribution of numerical colums")
+                i = 0
+                while (i < len(selected_num_cols)):
+                    c1, c2 = st.columns(2)
+                    for j in [c1, c2]:
+                        if (i >= len(selected_num_cols)):
+                            break
+
+                        fig = px.histogram(df, x = selected_num_cols[i])
+                        j.plotly_chart(fig, use_container_width = True)
+                        i += 1
+ 
+
 
 if __name__ == "__main__":
     main()
