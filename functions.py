@@ -30,6 +30,18 @@ def df_isnull(df):
     res['Percentage'] = res['Percentage'].astype(str) + '%'
     return res.rename(columns = {'index':'Column', 0:'Number of null values'})
 
+
+def sidebar_multiselect_container(massage, arr, key):
+    
+    container = st.sidebar.container()
+    select_all_button = st.sidebar.checkbox("Select all for " + key + " plots")
+    if select_all_button:
+        selected_num_cols = container.multiselect(massage, arr, default = list(arr))
+    else:
+        selected_num_cols = container.multiselect(massage, arr, default = arr[0])
+
+    return selected_num_cols    
+
 def average(start, end):
     return ("= AVERAGE(" + str(start) + ":" + str(end) + ")")
 
