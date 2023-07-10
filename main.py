@@ -13,47 +13,37 @@ from langchain import PromptTemplate
 from langchain.llms import OpenAI
 from openpyxl.chart import Reference
 from functions import *
+
+
 def main():
     load_dotenv()
-    st.set_page_config("Analytic-gpt")
-    st.header("Analytic-gpt")
-    st.subheader("Upload your excel data")
     openai_key = os.getenv("OPENAI_API_KEY")
-
-    raw_table = st.file_uploader(label="upload")
-
     model = OpenAI(
         model_name="gpt-3.5-turbo-16k",
         openai_api_key=openai_key,
     )
+    #streamlit confige
+    st.set_page_config("Analytic-gpt")
+    st.header("Analytic GPT")
+    st.sidebar.header("Tool panel")
 
-    if raw_table is not None: 
-        table = pd.read_excel(raw_table)
-        wb = openpyxl.load_workbook(raw_table)
-        ws = wb.active
-        st.write('Total number of rows: '+str(ws.max_row)+'. And total number of columns: '+str(ws.max_column))
-
-        template = """/
-        You are senior data analytic. Analyse following excel file and mention main matrix and trends. Excel file: {table}
-        """
-
-        prompt = PromptTemplate.from_template(template)
-        st.write(model(prompt.format(table = table)))
+    #streamlit file uploading
+    st.write('<p style="font-size:130%">Import Dataset</p>', unsafe_allow_html=True)
+    file_format = st.radio('Select file format:', ('csv', 'excel'), key='file_format') 
+    dataset = st.file_uploader(label = '') 
 
 
-    
+    if dataset:
+        if file_format == 'csv': # format checker
+            df = pd.read_csv(dataset)
+        else:
+            df = pd.read_excel(dataset)
+        
+        st.subheader('Dataframe:')
+        n, m = df.shape
+        st.write(f'<p style="font-size:130%">Dataset contains {n} rows and {m} columns.</p>', unsafe_allow_html=True)   
+        st.dataframe(df)
 
-
-    # if raw_table is not None:
-
-    #     table = pd.read_excel(raw_table)
-
-    #     template = """/
-    #     You are senior data analytic. Analyse following excel file and mention main matrix and trends. Excel file: {table}
-    #     """
-
-    #     prompt = PromptTemplate.from_template(template)
-    #     st.write(model(prompt.format(table = table)))
         
     
 
