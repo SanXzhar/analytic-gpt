@@ -57,3 +57,15 @@ def sum(start, end):
 def sidebar_space(num_lines=1):
     for _ in range(num_lines):
         st.sidebar.write("")
+
+def number_of_outliers(df):
+    
+    df = df.select_dtypes(exclude = 'object')
+    
+    Q1 = df.quantile(0.25)
+    Q3 = df.quantile(0.75)
+    IQR = Q3 - Q1
+    
+    ans = ((df < (Q1 - 1.5 * IQR)) | (df > (Q3 + 1.5 * IQR))).sum()
+    df = pd.DataFrame(ans).reset_index().rename(columns = {'index':'column', 0:'count_of_outliers'})
+    return df
