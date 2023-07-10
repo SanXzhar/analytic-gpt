@@ -6,7 +6,7 @@ import plotly.express as px
 from dotenv import load_dotenv
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import FAISS
-from langchain.chains.question_answering import load_qa_chain
+# from langchain.chains.question_answering import load_qa_chain
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import RetrievalQA
 from langchain import PromptTemplate
@@ -45,7 +45,7 @@ def main():
         st.dataframe(df)
 
 
-        chart_types = ['Info', 'Null Info', 'Descriptive Analysis', 'Target Analysis', 'Distribution of Numerical Columns']
+        chart_types = ['Info', 'Null Info', 'Descriptive Analysis', 'Target Analysis', 'Distribution of Numerical Columns', 'Count Plots of Categorical Columns', 'Box Plots', 'Outlier Analysis']
         
         functions.sidebar_space(3)         
         charts = st.sidebar.multiselect("Choose which visualizations you want to see 👇", chart_types)
@@ -89,14 +89,54 @@ def main():
                 while (i < len(selected_num_cols)):
                     c1, c2 = st.columns(2)
                     for j in [c1, c2]:
+
                         if (i >= len(selected_num_cols)):
                             break
 
                         fig = px.histogram(df, x = selected_num_cols[i])
                         j.plotly_chart(fig, use_container_width = True)
                         i += 1
- 
 
+        if 'Count Plots of Categorical Columns' in charts:
+            if len(cat_columns) == 0:
+                st.write('There is no categorical column in the data.')
+            else:
+                selected_cat_cols = functions.sidebar_multiselect_container('Choose colums for count plots:', cat_columns, 'Count')
+                st.subheader('Count plots of categorical columms')
+                i = 0
+                while (i < len(selected_cat_cols)):
+                    c1, c2 = st.columns(2)
+                    for j in [c1, c2]:
+
+                        if (i >= len(selected_cat_cols)):
+                            break
+
+                        fig = px.histogram(df, x = selected_cat_cols[i], color_discrete_sequence=['indianred'])
+                        j.plotly_chart(fig)
+                        i += 1
+
+        if 'Box Plots' in charts:
+            if len(num_columns) == 0:
+                st.write('There is no numerical columns in the data.')
+            else:
+                selected_num_cols = functions.sidebar_multiselect_container('Choose columns for Box plots:', num_columns, 'Box')
+                st.subheader('Box plots')
+                i = 0
+                while (i < len(selected_num_cols)):
+                    c1, c2 = st.columns(2)
+                    for j in [c1, c2]:
+                        
+                        if (i >= len(selected_num_cols)):
+                            break
+                        
+                        fig = px.box(df, y = selected_num_cols[i])
+                        j.plotly_chart(fig, use_container_width = True)
+                        i += 1
+
+        if 'Outlier Analysis' in charts:
+            st.subheader('Outlier Analysis')
+            c1, c2, c3 = st.columns([1, 2, 1])
+            c2.dataframe(functions.number_of_outliers(df))
 
 if __name__ == "__main__":
     main()
