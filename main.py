@@ -13,7 +13,7 @@ from langchain import PromptTemplate
 from langchain.llms import OpenAI
 from openpyxl.chart import Reference
 from functions import *
-
+import functions
 
 def main():
     load_dotenv()
@@ -44,8 +44,27 @@ def main():
         st.write(f'<p style="font-size:130%">Dataset contains {n} rows and {m} columns.</p>', unsafe_allow_html=True)   
         st.dataframe(df)
 
+
+        chart_types = ['Info', 'Null Info']
         
-    
+        functions.sidebar_space(3)         
+        charts = st.sidebar.multiselect("Choose which visualizations you want to see 👇", chart_types)
+        
+        if 'Info' in charts:
+            st.subheader('Info:')
+            c1, c2, c3 = st.columns([1, 6, 1])
+            c2.dataframe(functions.df_info(df))
+
+        if 'Null Info' in charts:
+            st.subheader('Null Info:')
+            if df.isnull().sum().sum() == 0:
+                st.write("There is not any NA value in your dataset.")
+            else:
+                c1, c2, c3 = st.columns([1, 6, 1])
+                c2.dataframe(functions.df_isnull(df), width = 1500)
+
+
+        
 
 if __name__ == "__main__":
     main()
