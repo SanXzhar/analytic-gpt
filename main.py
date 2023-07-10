@@ -67,7 +67,14 @@ def main():
             st.subheader("Descriptive Analysis:")
             st.dataframe(df.describe())
 
-        
+        if 'Target Analysis' in charts:
+            st.subheader("Targer Analysis:")
+            target_column = st.selectbox("", df.columns, index = len(df.columns) - 1)
+    
+            st.subheader("Histogram of target column")
+            fig = px.histogram(df, x = target_column)
+            c1, c2, c3 = st.columns([0.5, 2, 0.5])
+            c2.plotly_chart(fig)
         
 
 if __name__ == "__main__":
