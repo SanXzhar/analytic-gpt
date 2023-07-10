@@ -45,7 +45,7 @@ def main():
         st.dataframe(df)
 
 
-        chart_types = ['Info', 'Null Info', 'Descriptive Analysis', 'Target Analysis', 'Distribution of Numerical Columns']
+        chart_types = ['Info', 'Null Info', 'Descriptive Analysis', 'Target Analysis', 'Distribution of Numerical Columns', 'Count Plots of Categorical Columns']
         
         functions.sidebar_space(3)         
         charts = st.sidebar.multiselect("Choose which visualizations you want to see 👇", chart_types)
@@ -95,7 +95,24 @@ def main():
                         fig = px.histogram(df, x = selected_num_cols[i])
                         j.plotly_chart(fig, use_container_width = True)
                         i += 1
- 
+
+        if 'Count Plots of Categorical Columns' in charts:
+            if len(cat_columns) == 0:
+                st.write('There is no categorical column in the data.')
+            else:
+                selected_cat_cols = functions.sidebar_multiselect_container('Choose colums for count plots:', cat_columns, 'Count')
+                st.subheader('Count plots of categorical columms')
+                i = 0
+                while (i < len(selected_cat_cols)):
+                    c1, c2 = st.columns(2)
+                    for j in [c1, c2]:
+
+                        if (i >= len(selected_cat_cols)):
+                            break
+
+                        fig = px.histogram(df, x = selected_cat_cols[i], color_discrete_sequence=['indianred'])
+                        j.plotly_chart(fig)
+                        i += 1
 
 
 if __name__ == "__main__":
