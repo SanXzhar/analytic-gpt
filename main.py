@@ -1,4 +1,5 @@
 import os
+import openpyxl 
 import pandas as pd
 import streamlit as st
 import plotly.express as px
@@ -10,7 +11,8 @@ from langchain.chat_models import ChatOpenAI
 from langchain.chains import RetrievalQA
 from langchain import PromptTemplate
 from langchain.llms import OpenAI
-
+from openpyxl.chart import Reference
+from functions import *
 def main():
     load_dotenv()
     st.set_page_config("Analytic-gpt")
@@ -25,9 +27,11 @@ def main():
         openai_api_key=openai_key,
     )
 
-    if raw_table is not None:
-
+    if raw_table is not None: 
         table = pd.read_excel(raw_table)
+        wb = openpyxl.load_workbook(raw_table)
+        ws = wb.active
+        st.write('Total number of rows: '+str(ws.max_row)+'. And total number of columns: '+str(ws.max_column))
 
         template = """/
         You are senior data analytic. Analyse following excel file and mention main matrix and trends. Excel file: {table}
@@ -35,6 +39,23 @@ def main():
 
         prompt = PromptTemplate.from_template(template)
         st.write(model(prompt.format(table = table)))
+
+
+    
+
+
+    # if raw_table is not None:
+
+    #     table = pd.read_excel(raw_table)
+
+    #     template = """/
+    #     You are senior data analytic. Analyse following excel file and mention main matrix and trends. Excel file: {table}
+    #     """
+
+    #     prompt = PromptTemplate.from_template(template)
+    #     st.write(model(prompt.format(table = table)))
+        
+    
 
 if __name__ == "__main__":
     main()
