@@ -15,6 +15,7 @@ from openpyxl.chart import Reference
 from functions import *
 import functions
 import openai
+from function_description import *
 
 def main():
     load_dotenv()
@@ -34,14 +35,16 @@ def main():
     file_format = st.radio('Select file format:', ('csv', 'excel'), key='file_format') 
     dataset = st.file_uploader(label = '') 
 
+
+
     #info-checker function
-    def Info():
+    def info():
         st.subheader('Info:')
         c1, c2, c3 = st.columns([1, 6, 1])
         c2.dataframe(functions.df_info(df))
     
     #null-info-checker function
-    def NullInfo():
+    def null_info():
         st.subheader('Null Info:')
         if df.isnull().sum().sum() == 0:
             st.write("There is not any NA value in your dataset.")
@@ -51,12 +54,12 @@ def main():
 
     
     #descriptive analysis function
-    def DescriptiveAnalysis():
+    def descriptive_analysis():
         st.subheader("Descriptive Analysis:")
         st.dataframe(df.describe())
 
     #target analysis function
-    def TargetAnalysis():
+    def target_analysis():
         st.subheader("Target Analysis:")
         target_column = st.selectbox("", df.columns, index = len(df.columns) - 1)
     
@@ -66,7 +69,7 @@ def main():
         c2.plotly_chart(fig)
 
     #distribution columns builder
-    def DistributionColumns():
+    def distribution_columns():
         if len(num_columns) == 0:
             st.write('There is no numerical colums in the data.')
         else: 
@@ -85,7 +88,7 @@ def main():
                     i += 1
     
     #count columns builder
-    def CountColumns():
+    def count_columns():
         if len(cat_columns) == 0:
             st.write('There is no categorical column in the data.')
         else:
@@ -104,7 +107,7 @@ def main():
                     i += 1
 
     #bar columns builder
-    def BarColumns():
+    def bar_columns():
         if len(num_columns) == 0:
             st.write('There is no numerical columns in the data.')
         else:
@@ -123,7 +126,7 @@ def main():
                     i += 1
     
     #outliner-checker
-    def OutlinerAnalysis():
+    def oulliner_analysis():
         st.subheader('Outlier Analysis')
         c1, c2, c3 = st.columns([1, 2, 1])
         c2.dataframe(functions.number_of_outliers(df))
@@ -134,6 +137,19 @@ def main():
         else:
             df = pd.read_excel(dataset)
         
+        user_query = st.text_input(label='')
+
+        completion = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo-0613",
+        messages=[{"role": "user", "content": user_query}],
+        # Add function calling
+        functions=function_descriptions,
+        function_call="auto",  # specify the function call
+        )
+
+        output = completion.choices[0].message
+        st.write(output)
+
         st.subheader('Dataframe:')
         n, m = df.shape
         st.write(f'<p style="font-size:130%">Dataset contains {n} rows and {m} columns.</p>', unsafe_allow_html=True)   
@@ -146,31 +162,31 @@ def main():
         charts = st.sidebar.multiselect("Choose which visualizations you want to see 👇", chart_types)
         
         if 'Info' in charts:
-            Info()
+            info()
 
         if 'Null Info' in charts:
-            NullInfo()
+            null_info()
 
         if 'Descriptive Analysis' in charts:
-            DescriptiveAnalysis()
+            descriptive_analysis()
 
         if 'Target Analysis' in charts:
-            TargetAnalysis()
+            target_analysis()
 
         num_columns = df.select_dtypes(exclude = 'object').columns
         cat_columns = df.select_dtypes(include = 'object').columns
 
         if 'Distribution of Numerical Columns' in charts:
-            DistributionColumns()
+            distribution_columns()
 
         if 'Count Plots of Categorical Columns' in charts:
-            CountColumns()
+            count_columns()
         
         if 'Box Plots' in charts:
-            BarColumns()           
+            bar_columns()           
 
         if 'Outlier Analysis' in charts:
-            OutlinerAnalysis()
+            oulliner_analysis()
 
 if __name__ == "__main__":
     main()
