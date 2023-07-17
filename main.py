@@ -16,12 +16,13 @@ from functions import *
 import functions
 import openai
 from function_description import *
+from langchain.schema import HumanMessage, AIMessage, ChatMessage
 
 def main():
     load_dotenv()
     openai_key = os.getenv("OPENAI_API_KEY")
-    model = OpenAI(
-        model_name="gpt-3.5-turbo-16k",
+    model = ChatOpenAI(
+        model_name="gpt-3.5-turbo-0613",
         openai_api_key=openai_key,
     )
 
@@ -139,32 +140,27 @@ def main():
         
         user_query = st.text_input(label='')
 
-        completion = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo-0613",
-        messages=[{"role": "user", "content": user_query}],
-        # Add function calling
-        functions=function_descriptions,
-        function_call="auto",  # specify the function call
-        )
-
-        output = completion.choices[0].message
-        st.write(output)
-
+        first_response = model.predict_messages([HumanMessage(content=user_query)],
+                                      functions=function_description)
         st.subheader('Dataframe:')
         n, m = df.shape
         st.write(f'<p style="font-size:130%">Dataset contains {n} rows and {m} columns.</p>', unsafe_allow_html=True)   
         st.dataframe(df)
 
 
-        chart_types = ['Info', 'Null Info', 'Descriptive Analysis', 'Target Analysis', 'Distribution of Numerical Columns', 'Count Plots of Categorical Columns', 'Box Plots', 'Outlier Analysis']
+        chart_types = ['Info', 'null_info', 'Descriptive Analysis', 'Target Analysis', 'Distribution of Numerical Columns', 'Count Plots of Categorical Columns', 'Box Plots', 'Outlier Analysis']
         
         functions.sidebar_space(3)         
         charts = st.sidebar.multiselect("Choose which visualizations you want to see 👇", chart_types)
+        if first_response: 
+            charts.append(first_response.additional_kwargs["function_call"]["name"])
+            st.write(charts)
+   
         
         if 'Info' in charts:
             info()
 
-        if 'Null Info' in charts:
+        if 'null_info' in charts:
             null_info()
 
         if 'Descriptive Analysis' in charts:
