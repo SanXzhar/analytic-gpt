@@ -148,7 +148,7 @@ def main():
         st.dataframe(df)
 
 
-        chart_types = ['Info', 'null_info', 'Descriptive Analysis', 'Target Analysis', 'Distribution of Numerical Columns', 'Count Plots of Categorical Columns', 'Box Plots', 'Outlier Analysis']
+        chart_types = ['info', 'null_info', 'descriptive_analysis', 'target_analysis', 'distribution_columns', 'count_plot', 'box_plots', 'outlier_analysis']
         
         functions.sidebar_space(3)         
         charts = st.sidebar.multiselect("Choose which visualizations you want to see 👇", chart_types)
@@ -157,31 +157,31 @@ def main():
             st.write(charts)
    
         
-        if 'Info' in charts:
+        if 'info' in charts:
             info()
 
         if 'null_info' in charts:
             null_info()
 
-        if 'Descriptive Analysis' in charts:
+        if 'descriptive_analysis' in charts:
             descriptive_analysis()
 
-        if 'Target Analysis' in charts:
+        if 'target_analysis' in charts:
             target_analysis()
 
         num_columns = df.select_dtypes(exclude = 'object').columns
         cat_columns = df.select_dtypes(include = 'object').columns
 
-        if 'Distribution of Numerical Columns' in charts:
+        if 'distribution_columns' in charts:
             distribution_columns()
 
-        if 'Count Plots of Categorical Columns' in charts:
+        if 'count_plot' in charts:
             count_columns()
         
-        if 'Box Plots' in charts:
+        if 'box_plots' in charts:
             bar_columns()           
 
-        if 'Outlier Analysis' in charts:
+        if 'outlier_analysis' in charts:
             oulliner_analysis()
 
 if __name__ == "__main__":
