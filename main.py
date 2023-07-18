@@ -36,6 +36,10 @@ def main():
     file_format = st.radio('Select file format:', ('csv', 'excel'), key='file_format') 
     dataset = st.file_uploader(label = '') 
 
+    model = OpenAI(
+        model_name="gpt-3.5-turbo-16k",
+        openai_api_key=openai_key,
+    )
 
 
     #info-checker function
@@ -137,6 +141,13 @@ def main():
             df = pd.read_csv(dataset)
         else:
             df = pd.read_excel(dataset)
+
+        template = """/
+        You are senior data analytic. Analyse following excel file and mention main matrix and trends. Excel file: {table}
+        """
+
+        prompt = PromptTemplate.from_template(template)
+        st.write(model(prompt.format(table = df)))
         
         user_query = st.text_input(label='')
 
