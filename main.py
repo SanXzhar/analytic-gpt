@@ -17,6 +17,7 @@ import functions
 import openai
 from function_description import *
 from langchain.schema import HumanMessage, AIMessage, ChatMessage
+from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 
 def main():
     load_dotenv()
@@ -35,11 +36,6 @@ def main():
     st.write('<p style="font-size:130%">Import Dataset</p>', unsafe_allow_html=True)
     file_format = st.radio('Select file format:', ('csv', 'excel'), key='file_format') 
     dataset = st.file_uploader(label = '') 
-
-    model = OpenAI(
-        model_name="gpt-3.5-turbo-16k",
-        openai_api_key=openai_key,
-    )
 
 
     #info-checker function
@@ -146,9 +142,11 @@ def main():
         You are senior data analytic. Analyse following excel file and mention main matrix and trends. Excel file: {table}
         """
 
-        prompt = PromptTemplate.from_template(template)
-        st.write(model(prompt.format(table = df)))
-        
+        human_message_prompt = HumanMessagePromptTemplate.from_template(template)
+        prompt = ChatPromptTemplate.from_messages([human_message_prompt])
+        formatted_prompt = prompt.format_prompt(table=df).to_messages()
+        st.write(model(formatted_prompt))
+
         user_query = st.text_input(label='')
 
         first_response = model.predict_messages([HumanMessage(content=user_query)],
