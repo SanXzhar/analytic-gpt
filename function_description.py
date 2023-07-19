@@ -40,9 +40,15 @@ function_description = [
     {
         "name": "distribution_columns",
         "description": "Numerical bar graph",
-        "parameters": {
+         "parameters": {
             "type": "object",
-            "properties": {}
+            "properties": {
+                "column": {
+                    "type": "string",
+                    "description": "name of column on which should be done numerical bar"
+                }
+            },
+            "required": ["column"]
         }
     },
     {
