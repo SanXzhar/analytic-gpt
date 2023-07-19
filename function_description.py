@@ -70,7 +70,13 @@ function_description = [
         "desciption" : "Box plots on numerical data",
         "parameters": {
             "type": "object",
-            "properties": {}
+            "properties": {
+                "column": {
+                    "type": "string",
+                    "description": "name of column on which should be done box plot"
+                }
+            },
+            "required": ["column"]
         }
     },
     {

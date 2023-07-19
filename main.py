@@ -110,11 +110,12 @@ def main():
                     i += 1
 
     #bar columns builder
-    def bar_columns():
+    def box_columns(column_box):
         if len(num_columns) == 0:
             st.write('There is no numerical columns in the data.')
         else:
             selected_num_cols = functions.sidebar_multiselect_container('Choose columns for Box plots:', num_columns, 'Box')
+            selected_num_cols.append(column_box)
             st.subheader('Box plots')
             i = 0
             while (i < len(selected_num_cols)):
@@ -143,10 +144,10 @@ def main():
         template = """/
         You are senior data analytic. Analyse following excel file and mention main matrix and trends. Excel file: {table}
         """
-        human_message_prompt = HumanMessagePromptTemplate.from_template(template)
-        prompt = ChatPromptTemplate.from_messages([human_message_prompt])
-        formatted_prompt = prompt.format_prompt(table=df).to_messages()
-        st.write(model(formatted_prompt))
+        # human_message_prompt = HumanMessagePromptTemplate.from_template(template)
+        # prompt = ChatPromptTemplate.from_messages([human_message_prompt])
+        # formatted_prompt = prompt.format_prompt(table=df).to_messages()
+        # st.write(model(formatted_prompt))
 
         user_query = st.text_input(label='')
 
@@ -173,10 +174,12 @@ def main():
 
             if function_name == "count_plot":
                 column_count = eval(first_response.additional_kwargs['function_call']['arguments']).get('column')
-            charts.append(function_name)
-            # st.write(charts)
-   
+            
+            if function == "box_plots":
+                column_box = eval(first_response.additional_kwargs['function_call']['arguments']).get('column')
         
+            charts.append(function_name)
+
         if 'info' in charts:
             info()
 
@@ -194,13 +197,12 @@ def main():
 
         if 'distribution_columns' in charts:
             distribution_columns(column_dist)
-            st.write("dasf")
 
         if 'count_plot' in charts:
             count_columns(column_count)
         
         if 'box_plots' in charts:
-            bar_columns()           
+            box_columns(column_box)           
 
         if 'outlier_analysis' in charts:
             oulliner_analysis()
