@@ -28,7 +28,13 @@ function_description = [
         "description": "Target analysis on one graph",
         "parameters": {
             "type": "object",
-            "properties": {}
+            "properties": {
+                "column": {
+                    "type": "string",
+                    "description": "name of column on which should be done Target analysis"
+                }
+            },
+            "required": ["column"]
         }
     },
     {
@@ -64,3 +70,19 @@ function_description = [
         }
     }
 ]
+
+# "properties": {
+#                         "year": {
+#                             "type": "integer",
+#                             "description": "The year the user would like to make an edit to their forecast for",
+#                         },
+#                         "category": {
+#                             "type": "string",
+#                             "description": "The category of the edit a user would like to edit"
+#                         },
+#                         "amount": {
+#                             "type": "integer",
+#                             "description": "The amount of units the user would like to change"
+#                         },
+#                     },
+#                     "required": ["year", "category", "amount"],

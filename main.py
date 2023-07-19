@@ -60,9 +60,9 @@ def main():
         st.dataframe(df.describe())
 
     #target analysis function
-    def target_analysis():
+    def target_analysis(column):
         st.subheader("Target Analysis:")
-        target_column = st.selectbox("", df.columns, index = len(df.columns) - 1)
+        target_column = column
     
         st.subheader("Histogram of target column")
         fig = px.histogram(df, x = target_column)
@@ -141,7 +141,6 @@ def main():
         template = """/
         You are senior data analytic. Analyse following excel file and mention main matrix and trends. Excel file: {table}
         """
-
         human_message_prompt = HumanMessagePromptTemplate.from_template(template)
         prompt = ChatPromptTemplate.from_messages([human_message_prompt])
         formatted_prompt = prompt.format_prompt(table=df).to_messages()
@@ -162,8 +161,12 @@ def main():
         functions.sidebar_space(3)         
         charts = st.sidebar.multiselect("Choose which visualizations you want to see 👇", chart_types)
         if first_response: 
+            function_name = first_response.additional_kwargs["function_call"]["name"]
+            if function_name == "target_analysis":
+                column = eval(first_response.additional_kwargs['function_call']['arguments']).get('column')
+            
             charts.append(first_response.additional_kwargs["function_call"]["name"])
-            st.write(charts)
+            # st.write(charts)
    
         
         if 'info' in charts:
@@ -176,7 +179,7 @@ def main():
             descriptive_analysis()
 
         if 'target_analysis' in charts:
-            target_analysis()
+            target_analysis(column)
 
         num_columns = df.select_dtypes(exclude = 'object').columns
         cat_columns = df.select_dtypes(include = 'object').columns
