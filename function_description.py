@@ -53,10 +53,16 @@ function_description = [
     },
     {
         "name": "count_plot",
-        "description": "Cout plot for raw data",
+        "description": "Count plot for raw data",
         "parameters": {
             "type": "object",
-            "properties": {}
+            "properties": {
+                "column": {
+                    "type": "string",
+                    "description": "name of column on which should be done count bar"
+                }
+            },
+            "required": ["column"]
         }
     },
     {

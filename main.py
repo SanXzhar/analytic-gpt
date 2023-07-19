@@ -90,11 +90,12 @@ def main():
                     i += 1
     
     #count columns builder
-    def count_columns():
+    def count_columns(column_count):
         if len(cat_columns) == 0:
             st.write('There is no categorical column in the data.')
         else:
             selected_cat_cols = functions.sidebar_multiselect_container('Choose colums for count plots:', cat_columns, 'Count')
+            selected_cat_cols.append(column_count)
             st.subheader('Count plots of categorical columms')
             i = 0
             while (i < len(selected_cat_cols)):
@@ -169,6 +170,9 @@ def main():
             if function_name == "distribution_columns":
                 column_dist = eval(first_response.additional_kwargs['function_call']['arguments']).get('column')
                 st.write(column_dist)
+
+            if function_name == "count_plot":
+                column_count = eval(first_response.additional_kwargs['function_call']['arguments']).get('column')
             charts.append(function_name)
             # st.write(charts)
    
@@ -193,7 +197,7 @@ def main():
             st.write("dasf")
 
         if 'count_plot' in charts:
-            count_columns()
+            count_columns(column_count)
         
         if 'box_plots' in charts:
             bar_columns()           
