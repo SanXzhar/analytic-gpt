@@ -70,11 +70,12 @@ def main():
         c2.plotly_chart(fig)
 
     #distribution columns builder
-    def distribution_columns():
+    def distribution_columns(column):
         if len(num_columns) == 0:
             st.write('There is no numerical colums in the data.')
         else: 
             selected_num_cols = functions.sidebar_multiselect_container('Choose columns for Distribution plots:', num_columns, "Distribution")
+            selected_num_cols.append(column)
             st.subheader("Distribution of numerical colums")
             i = 0
             while (i < len(selected_num_cols)):
@@ -165,7 +166,10 @@ def main():
             if function_name == "target_analysis":
                 column = eval(first_response.additional_kwargs['function_call']['arguments']).get('column')
             
-            charts.append(first_response.additional_kwargs["function_call"]["name"])
+            if function_name == "distribution_columns":
+                column_dist = eval(first_response.additional_kwargs['function_call']['arguments']).get('column')
+                st.write(column_dist)
+            charts.append(function_name)
             # st.write(charts)
    
         
@@ -185,7 +189,8 @@ def main():
         cat_columns = df.select_dtypes(include = 'object').columns
 
         if 'distribution_columns' in charts:
-            distribution_columns()
+            distribution_columns(column_dist)
+            st.write("dasf")
 
         if 'count_plot' in charts:
             count_columns()
