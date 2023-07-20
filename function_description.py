@@ -80,6 +80,20 @@ function_description = [
         }
     },
     {
+        "name": "mean_value",
+        "desciption" : "Mean value of numerical column",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "column": {
+                    "type": "string",
+                    "description": "name of column of which we want to find a value"
+                }
+            },
+            "required": ["column"]
+        }
+    },
+    {
         "name": "outlier_analysis",
         "description": "Gets outlining data from raw data",
         "parameters": {
