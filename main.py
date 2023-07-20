@@ -69,6 +69,11 @@ def main():
         c1, c2, c3 = st.columns([0.5, 2, 0.5])
         c2.plotly_chart(fig)
 
+    def mean_value(column):
+        mean = df.loc[:, str(column)].mean()
+        st.write(mean)        
+
+
     #distribution columns builder
     def distribution_columns(column):
         if len(num_columns) == 0:
@@ -175,9 +180,13 @@ def main():
             if function_name == "count_plot":
                 column_count = eval(first_response.additional_kwargs['function_call']['arguments']).get('column')
             
-            if function == "box_plots":
+            if function_name == "box_plots":
                 column_box = eval(first_response.additional_kwargs['function_call']['arguments']).get('column')
         
+            if function_name == "mean_value":
+                column_mean = eval(first_response.additional_kwargs['function_call']['arguments']).get('column')
+
+
             charts.append(function_name)
 
         if 'info' in charts:
@@ -191,6 +200,9 @@ def main():
 
         if 'target_analysis' in charts:
             target_analysis(column)
+
+        if 'mean_value' in charts:
+            mean_value(column_mean)
 
         num_columns = df.select_dtypes(exclude = 'object').columns
         cat_columns = df.select_dtypes(include = 'object').columns
