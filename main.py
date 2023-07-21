@@ -134,6 +134,21 @@ def main():
                     j.plotly_chart(fig, use_container_width = True)
                     i += 1
     
+    def main_metrix_definer(column):
+        st.subheader('Main metrix')
+        i = 0
+        selected_num_cols_metrix = []
+        # selected_num_cols = functions.sidebar_multiselect_container('Choose columns for Box plots:', num_columns, 'Box')
+        selected_num_cols_metrix.append(column)
+
+        template_metrix ='''You are a data analytic. Define main matrix of following column and return statistics that can be useful for a user or a buniness. Here is column:{i_column}'''
+        while (i < len(selected_num_cols_metrix)):
+            i_column = df.loc[:, str(selected_num_cols_metrix[i])]
+            human_message_prompt = HumanMessagePromptTemplate.from_template(template_metrix)
+            prompt = ChatPromptTemplate.from_messages([human_message_prompt])
+            formatted_prompt = prompt.format_prompt(i_column=i_column).to_messages()
+            st.write(model(formatted_prompt).content)
+            i += 1
     #outliner-checker
     def oulliner_analysis():
         st.subheader('Outlier Analysis')
@@ -186,6 +201,10 @@ def main():
             if function_name == "mean_value":
                 column_mean = eval(first_response.additional_kwargs['function_call']['arguments']).get('column')
 
+            if function_name == "main_metrix":
+                column_metrix = eval(first_response.additional_kwargs['function_call']['arguments']).get('column')
+
+
 
             charts.append(function_name)
 
@@ -206,6 +225,9 @@ def main():
 
         num_columns = df.select_dtypes(exclude = 'object').columns
         cat_columns = df.select_dtypes(include = 'object').columns
+
+        if 'main_metrix' in charts:
+            main_metrix_definer(column_metrix)
 
         if 'distribution_columns' in charts:
             distribution_columns(column_dist)
