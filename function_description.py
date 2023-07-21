@@ -93,6 +93,20 @@ function_description = [
             "required": ["column"]
         }
     },
+       {
+        "name": "main_metrix",
+        "desciption" : "Returns main metrix of selected column",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "column": {
+                    "type": "string",
+                    "description": "name of column of which we want to define main metrix"
+                }
+            },
+            "required": ["column"]
+        }
+    },
     {
         "name": "outlier_analysis",
         "description": "Gets outlining data from raw data",
