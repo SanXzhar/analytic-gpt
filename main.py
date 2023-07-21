@@ -17,6 +17,7 @@ import functions
 import openai
 from function_description import *
 from langchain.schema import HumanMessage, AIMessage, ChatMessage
+from langchain.prompts import ChatPromptTemplate, SystemMessagePromptTemplate, HumanMessagePromptTemplate
 
 def main():
     load_dotenv()
@@ -35,7 +36,6 @@ def main():
     st.write('<p style="font-size:130%">Import Dataset</p>', unsafe_allow_html=True)
     file_format = st.radio('Select file format:', ('csv', 'excel'), key='file_format') 
     dataset = st.file_uploader(label = '') 
-
 
 
     #info-checker function
@@ -60,21 +60,27 @@ def main():
         st.dataframe(df.describe())
 
     #target analysis function
-    def target_analysis():
+    def target_analysis(column):
         st.subheader("Target Analysis:")
-        target_column = st.selectbox("", df.columns, index = len(df.columns) - 1)
+        target_column = column
     
         st.subheader("Histogram of target column")
         fig = px.histogram(df, x = target_column)
         c1, c2, c3 = st.columns([0.5, 2, 0.5])
         c2.plotly_chart(fig)
 
+    def mean_value(column):
+        mean = df.loc[:, str(column)].mean()
+        st.write(mean)        
+
+
     #distribution columns builder
-    def distribution_columns():
+    def distribution_columns(column):
         if len(num_columns) == 0:
             st.write('There is no numerical colums in the data.')
         else: 
             selected_num_cols = functions.sidebar_multiselect_container('Choose columns for Distribution plots:', num_columns, "Distribution")
+            selected_num_cols.append(column)
             st.subheader("Distribution of numerical colums")
             i = 0
             while (i < len(selected_num_cols)):
@@ -89,11 +95,12 @@ def main():
                     i += 1
     
     #count columns builder
-    def count_columns():
+    def count_columns(column_count):
         if len(cat_columns) == 0:
             st.write('There is no categorical column in the data.')
         else:
             selected_cat_cols = functions.sidebar_multiselect_container('Choose colums for count plots:', cat_columns, 'Count')
+            selected_cat_cols.append(column_count)
             st.subheader('Count plots of categorical columms')
             i = 0
             while (i < len(selected_cat_cols)):
@@ -108,11 +115,12 @@ def main():
                     i += 1
 
     #bar columns builder
-    def bar_columns():
+    def box_columns(column_box):
         if len(num_columns) == 0:
             st.write('There is no numerical columns in the data.')
         else:
             selected_num_cols = functions.sidebar_multiselect_container('Choose columns for Box plots:', num_columns, 'Box')
+            selected_num_cols.append(column_box)
             st.subheader('Box plots')
             i = 0
             while (i < len(selected_num_cols)):
@@ -126,6 +134,21 @@ def main():
                     j.plotly_chart(fig, use_container_width = True)
                     i += 1
     
+    def main_metrix_definer(column):
+        st.subheader('Main metrix')
+        i = 0
+        selected_num_cols_metrix = []
+        # selected_num_cols = functions.sidebar_multiselect_container('Choose columns for Box plots:', num_columns, 'Box')
+        selected_num_cols_metrix.append(column)
+
+        template_metrix ='''You are a data analytic. Define main matrix of following column and return statistics that can be useful for a user or a buniness. Here is column:{i_column}'''
+        while (i < len(selected_num_cols_metrix)):
+            i_column = df.loc[:, str(selected_num_cols_metrix[i])]
+            human_message_prompt = HumanMessagePromptTemplate.from_template(template_metrix)
+            prompt = ChatPromptTemplate.from_messages([human_message_prompt])
+            formatted_prompt = prompt.format_prompt(i_column=i_column).to_messages()
+            st.write(model(formatted_prompt).content)
+            i += 1
     #outliner-checker
     def oulliner_analysis():
         st.subheader('Outlier Analysis')
@@ -137,7 +160,15 @@ def main():
             df = pd.read_csv(dataset)
         else:
             df = pd.read_excel(dataset)
-        
+
+        template = """/
+        You are senior data analytic. Analyse following excel file and mention main matrix and trends. Excel file: {table}
+        """
+        # human_message_prompt = HumanMessagePromptTemplate.from_template(template)
+        # prompt = ChatPromptTemplate.from_messages([human_message_prompt])
+        # formatted_prompt = prompt.format_prompt(table=df).to_messages()
+        # st.write(model(formatted_prompt))
+
         user_query = st.text_input(label='')
 
         first_response = model.predict_messages([HumanMessage(content=user_query)],
@@ -153,10 +184,30 @@ def main():
         functions.sidebar_space(3)         
         charts = st.sidebar.multiselect("Choose which visualizations you want to see 👇", chart_types)
         if first_response: 
-            charts.append(first_response.additional_kwargs["function_call"]["name"])
-            st.write(charts)
-   
+            function_name = first_response.additional_kwargs["function_call"]["name"]
+            if function_name == "target_analysis":
+                column = eval(first_response.additional_kwargs['function_call']['arguments']).get('column')
+            
+            if function_name == "distribution_columns":
+                column_dist = eval(first_response.additional_kwargs['function_call']['arguments']).get('column')
+                st.write(column_dist)
+
+            if function_name == "count_plot":
+                column_count = eval(first_response.additional_kwargs['function_call']['arguments']).get('column')
+            
+            if function_name == "box_plots":
+                column_box = eval(first_response.additional_kwargs['function_call']['arguments']).get('column')
         
+            if function_name == "mean_value":
+                column_mean = eval(first_response.additional_kwargs['function_call']['arguments']).get('column')
+
+            if function_name == "main_metrix":
+                column_metrix = eval(first_response.additional_kwargs['function_call']['arguments']).get('column')
+
+
+
+            charts.append(function_name)
+
         if 'info' in charts:
             info()
 
@@ -167,19 +218,25 @@ def main():
             descriptive_analysis()
 
         if 'target_analysis' in charts:
-            target_analysis()
+            target_analysis(column)
+
+        if 'mean_value' in charts:
+            mean_value(column_mean)
 
         num_columns = df.select_dtypes(exclude = 'object').columns
         cat_columns = df.select_dtypes(include = 'object').columns
 
+        if 'main_metrix' in charts:
+            main_metrix_definer(column_metrix)
+
         if 'distribution_columns' in charts:
-            distribution_columns()
+            distribution_columns(column_dist)
 
         if 'count_plot' in charts:
-            count_columns()
+            count_columns(column_count)
         
         if 'box_plots' in charts:
-            bar_columns()           
+            box_columns(column_box)           
 
         if 'outlier_analysis' in charts:
             oulliner_analysis()
